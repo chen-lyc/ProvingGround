@@ -29,9 +29,12 @@
                      "clangd.enable":  true,
                      "clangd.arguments":  [
                                               "--compile-commands-dir=E:/ProvingGround/.vscode/clangd",
+                                              "-j=2",
                                               "--header-insertion=never"
                                           ],
-                     "C_Cpp.intelliSenseEngine":  "disabled"
+                     "C_Cpp.intelliSenseEngine":  "disabled",
+                     "C_Cpp.autocomplete":  "disabled",
+                     "C_Cpp.errorSquiggles":  "disabled"
                  },
     "extensions":  {
                        "recommendations":  [
@@ -475,6 +478,34 @@
                                                 }
                                 },
                                 {
+                                    "label":  "Build ProvingGroundEditor and update clangd",
+                                    "dependsOrder":  "sequence",
+                                    "dependsOn":  [
+                                                      "ProvingGroundEditor Win64 Development Build",
+                                                      "Update clangd if needed"
+                                                  ],
+                                    "group":  {
+                                                  "kind":  "build",
+                                                  "isDefault":  true
+                                              },
+                                    "problemMatcher":  []
+                                },
+                                {
+                                    "label":  "Update clangd if needed",
+                                    "type":  "process",
+                                    "command":  "${env:SystemRoot}\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+                                    "args":  [
+                                                 "-NoProfile",
+                                                 "-File",
+                                                 "${workspaceFolder:ProvingGround}\\.vscode\\RefreshClangd.ps1",
+                                                 "-IfNeeded"
+                                             ],
+                                    "options":  {
+                                                    "cwd":  "${workspaceFolder:ProvingGround}"
+                                                },
+                                    "problemMatcher":  []
+                                },
+                                {
                                     "label":  "Refresh clangd compilation database",
                                     "type":  "process",
                                     "command":  "${env:SystemRoot}\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
@@ -499,7 +530,7 @@
                                               "name":  "Launch ProvingGroundEditor (Development)",
                                               "request":  "launch",
                                               "program":  "E:\\UE\\UE_5.8\\Engine\\Binaries\\Win64\\UnrealEditor.exe",
-                                              "preLaunchTask":  "ProvingGroundEditor Win64 Development Build",
+                                              "preLaunchTask":  "Build ProvingGroundEditor and update clangd",
                                               "args":  [
                                                            "E:\\ProvingGround\\ProvingGround.uproject"
                                                        ],

@@ -45,6 +45,10 @@
 
 如先前禁用了 clangd，请手动选择“启用（工作区）”，然后运行 clangd: Restart language server，无需由 Codex 重载整个窗口。
 
-新增 C++ 类或修改 Build.cs 后，先正常构建生成 UHT 头文件，再在“终端 → 运行任务”中运行 Refresh clangd compilation database。重新生成 UE 工作区后也要核对 clangd.enable=true、C_Cpp.intelliSenseEngine=disabled 两项；工程文件夹设置已保留同样的覆盖值。
+在 ProvingGround.code-workspace 中使用 F5（Launch ProvingGroundEditor (Development)）或 Ctrl+Shift+B：先构建，再按需更新 clangd 编译数据库。新增/删除源码文件、修改 Build.cs、Target.cs 或插件/工程描述后会刷新；仅编辑现有代码正文时跳过刷新。新增反射类仍需构建成功，才能获得 UHT 生成头；已有编译错误需要先解决。无需每次让 Codex 修改配置。需要强制刷新时，仍可运行 Refresh clangd compilation database。
+
+微软 C/C++ 的 IntelliSense、补全和红线均已关闭，保留 cppvsdbg 调试器，代码分析由 clangd 提供。重新生成 UE 工作区可能覆盖自定义任务，之后需核对 F5 的 preLaunchTask 是否仍为 Build ProvingGroundEditor and update clangd。
+
+clangd 现在使用独立的响应文件副本（包含嵌套参数文件），避免 F5 的 MSVC 构建覆盖分析参数；并发数为 2。首次打开 UE 头文件仍需数秒预解析。若补全/快速修复持续卡住，先查看 clangd 输出和进程内存，再手动执行 clangd: Restart language server；不必重载整个 VS Code，也不要用屏蔽诊断代替定位问题。
 
 当前源码诊断验证通过。clangd 与 MSVC 可能有诊断差异，最终构建以 UBT/UHT/MSVC 结果为准。GameModeBase 头文件的 SpecialMembers 自动重构自测有限制，详见 EnvironmentSetup.md；本次没有修改用户游戏代码或做 Git 提交。

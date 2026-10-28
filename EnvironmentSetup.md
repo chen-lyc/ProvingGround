@@ -138,8 +138,14 @@ MSVC 安装目录中的 `14.50.35717` 是工具集目录名；实际编译器已
 - clangd.arguments 指向 E:/ProvingGround/.vscode/clangd 编译数据库，header-insertion=never，防止自动补全插入 include 干扰 UE 生成头的包含顺序。
 - 使用 UE 自带 UBT GenerateClangDatabase 模式生成标准 compile_commands.json，显式沿用 VisualStudio2026 工具链；筛选本工程 Source 和 Plugins 源文件，不编译引擎源码。
 - clangd 默认模拟的 MSVC 版本为 19.33，低于 UE 最低要求，最初检查因此报静态断言。刷新脚本读取已安装 cl.exe 的版本，将 /clang:-fms-compatibility-version=19.50 只追加到 JSON 分析命令，不修改 UBT 的真实编译响应文件，也不改变实际编译器。
-- 已添加 VS Code 任务 Refresh clangd compilation database，调用 .vscode/RefreshClangd.ps1。任务已实际验证成功；新增 C++ 类、修改 Build.cs 或刷新 UE 工程文件后，重新运行该任务。先完成一次正常 UE 构建，确保 UHT 生成头存在。
+- VS Code 的 F5 预启动任务和默认构建任务现为 Build ProvingGroundEditor and update clangd，依次运行 Development Editor 构建与 Update clangd if needed。刷新脚本通过源码文件列表、Build.cs/Target.cs、插件/工程描述及工具配置的指纹判断是否需要更新，并校验数据库哈希；普通代码正文修改跳过刷新。构建失败时不继续刷新或启动。手动任务 Refresh clangd compilation database 仍可强制刷新。UE 重新生成工作区可能覆盖自定义任务，届时需核对预启动任务。
 - 数据库和 clangd 索引是本地生成数据，.vscode/clangd/ 已加入 .gitignore；刷新脚本可纳入版本控制，本次没有代做提交。
+
+2026-10-28 修正：原数据库引用了正常 MSVC 构建也会改写的响应文件。构建后 clangd 会意外读到 SharedPCH.UnrealEd，现场出现约 17 GB 内存占用、单次预解析 172–205 秒、快速修复请求等待约 396 秒后取消。刷新脚本现递归保存独立的响应文件副本（含嵌套 Shared.rsp），并校验副本哈希；UBT 原始输出先写入临时数据库，处理完成后再替换正式数据库。实际 MSVC 构建选项不变。clangd 并发限制为 -j=2，以减少同时解析多个 UE 文件时的资源争用。用户已手动重启 clangd，无需重载 VS Code。
+
+修正后验证：3 个编译单元引用 4 份独立响应文件，包含嵌套引用，均不含 MSVC 的 SharedPCH/Yu/Fp 参数；重复刷新能正确跳过。Character 头文件解析为 0 错误，预解析约 5–8 秒（冷启动）；重启后 VS Code 实际日志已有约 122–182 毫秒的补全响应、0–219 毫秒的快速修复响应。这些是服务端响应时间，不等于完整界面显示延迟；本次未重新执行完整 F5 构建或修改用户游戏源码。
+
+同日下午继续排查：ULocalPlayer 的具体诊断为 incomplete type，当前使用 ULocalPlayer::GetSubsystem 的 .cpp 缺少 Engine/LocalPlayer.h；用户自行补上后，独立语言服务器检查为 0 错误，补全能返回 GetSubsystem。现场日志记录包含区反复修改时预解析约 5–17 秒、部分快速修复等待约 30 秒后取消。稳定状态 clangd 约占 0.7 GB，系统约有 14 GB 可用内存，没有复现先前的 17 GB 异常。独立 LSP 对照测量（仅使用内存缓冲，不改源码）：最后一次磁盘缓存测试初次分析约 7 秒、补全 196 毫秒、正文编辑后快速修复 262 毫秒；内存缓存对应约 7.9 秒、203 毫秒、263 毫秒，未显示稳定收益，因此未修改缓存配置。此前初次分析另有 14–19 秒样本，冷分析与包含区变化仍存在明显延迟，不能把热缓存响应时间当成所有场景均已解决。测试脚本和记录位于 Saved/EnvironmentSetup/PerformanceResearch/localplayer-lsp-probe*。
 
 验证结果：两个实际 .cpp 文件及引擎 CoreMinimal.h 的完整 clangd --check 均为 0 错误；用户 GameModeBase 头文件的完整解析、AST 构建与语义诊断也为 0 错误。
 

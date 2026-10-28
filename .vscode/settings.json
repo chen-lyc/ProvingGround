@@ -14,7 +14,10 @@
     "clangd.enable":  true,
     "clangd.arguments":  [
                              "--compile-commands-dir=E:/ProvingGround/.vscode/clangd",
+                             "-j=2",
                              "--header-insertion=never"
                          ],
-    "C_Cpp.intelliSenseEngine":  "disabled"
+    "C_Cpp.intelliSenseEngine":  "disabled",
+    "C_Cpp.autocomplete":  "disabled",
+    "C_Cpp.errorSquiggles":  "disabled"
 }
