@@ -1,4 +1,4 @@
-﻿{
+{
     "folders":  [
                     {
                         "name":  "ProvingGround",
@@ -34,7 +34,8 @@
                                           ],
                      "C_Cpp.intelliSenseEngine":  "disabled",
                      "C_Cpp.autocomplete":  "disabled",
-                     "C_Cpp.errorSquiggles":  "disabled"
+                    "C_Cpp.errorSquiggles": "disabled",
+                    "commentTranslate.source": "Bing"
                  },
     "extensions":  {
                        "recommendations":  [
