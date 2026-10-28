@@ -1,0 +1,18 @@
+<!-- Editor analysis only. UnrealBuildTool remains responsible for actual builds. -->
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <IsPackable>false</IsPackable>
+    <DefineConstants>$(DefineConstants);WITH_FORWARDED_MODULE_RULES_CTOR;WITH_FORWARDED_TARGET_RULES_CTOR;UE_5_8_OR_LATER</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../Source/**/*.Build.cs" />
+    <Compile Include="../Source/**/*.Target.cs" />
+    <Compile Include="../Plugins/**/*.Build.cs" />
+    <Reference Include="E:/UE/UE_5.8/Engine/Binaries/DotNET/UnrealBuildTool/*.dll">
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+</Project>

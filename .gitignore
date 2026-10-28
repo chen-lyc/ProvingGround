@@ -78,3 +78,11 @@ DerivedDataCache/*
 # Generated search-tool rules are not Git rules
 /.ignore
 
+# Generated VS Code compiler databases and C# analysis build output
+/.vscode/bin/
+/.vscode/obj/
+/.vscode/compileCommands*/
+/.vscode/compileCommands*.json
+/.vscode/c_cpp_properties.json
+/.vscode/clangd/
+

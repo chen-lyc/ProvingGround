@@ -3,6 +3,16 @@
 	"EngineAssociation": "{BCBE1CBA-40B6-B960-2053-C48C8FE19BDF}",
 	"Category": "",
 	"Description": "",
+	"Modules": [
+		{
+			"Name": "ProvingGround",
+			"Type": "Runtime",
+			"LoadingPhase": "Default",
+			"AdditionalDependencies": [
+				"Engine"
+			]
+		}
+	],
 	"Plugins": [
 		{
 			"Name": "ModelingToolsEditorMode",

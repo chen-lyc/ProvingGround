@@ -1,13 +1,13 @@
-# ProvingGround 环境配置与重建记录
+﻿# ProvingGround 环境配置与重建记录
 
-日期：2026-10-27（Asia/Shanghai）。当前为 First Person 蓝图工程；旧 Blank C++ 的验收记录保留在备份目录中。
+日期：2026-10-27（Asia/Shanghai）。当前由 First Person 蓝图模板起步，用户已自行添加首个 C++ GameModeBase；旧 Blank C++ 的验收记录保留在备份目录中。
 
 ## 工程与备份
 
 - 新工程：`E:\ProvingGround\ProvingGround.uproject`。
 - 完整旧工程：`E:\ProvingGround_BlankOld`，由用户完成目录改名，没有删除；旧提交 `8c48ece` 仍在旧仓库。
 - 已复制 GDD 和两份环境说明；GDD 的 SHA256 与旧目录一致。没有复制旧 `.git`、`.vscode`、Source、构建产物或缓存。
-- 未创建 C++ 类，未修改模板蓝图、输入配置或游戏逻辑。
+- 首个 C++ 类 ProvingGroundGameModeBase 由用户自行创建。本次环境配置未增改游戏源码、模板蓝图、输入配置或游戏逻辑。
 
 ## 模板和选项
 
@@ -33,7 +33,7 @@
 - 日志确认 UE 5.8.4-58902052+++UE5+Release-5.8 初始化成功，启动约 22.467 秒。
 - 用户在编辑器中运行并确认：WASD 移动、鼠标转视角均正常。当前会话没有桌面操控工具，此项由用户操作验证。
 - 编辑器偏好已核对：PreferredAccessor=VisualStudioCode。
-- 新工程没有 Source 目录、C++ 模块或 VS Code 工作区，不沿用旧 C++ 工程的 F5 验收结果。
+- 用户添加首个类后已有 Source 目录和 Runtime 模块；VS Code 工作区已为当前工程重新生成。7 个源码文件的初始哈希已保存并核对不变。F5 必须对当前工程单独验收，不能沿用旧 Blank 工程的结果。
 - **13 条 LogAutomationTest: Error: Condition failed 仍复现，未尝试修复。** 原日志如下：
 
 ```text
@@ -92,15 +92,19 @@ MSVC 安装目录中的 `14.50.35717` 是工具集目录名；实际编译器已
 
 以上版本来自上一阶段的实际安装和构建核验，本次未重新安装或升级。MSVC 目录名 14.50.35717 与已修订编译器实际版本 14.50.35739 不同，以实际版本为准。原有完整 VS Community 安装保留，本次没有安装完整 IDE。
 
-## 用户添加首个 C++ 类后再做
+## 用户添加首个 C++ 类后的 7 步执行记录
 
-1. 用户自行按教程创建第一个 C++ 类；本次不代建。
-2. 确认源码编辑器为 VS Code，执行 Tools > Refresh Visual Studio Code Project；也可用引擎 Build.bat 的 -projectfiles -project=... -game -engine -vscode 参数生成工作区。
-3. 在新生成的 c_cpp_properties.json 中补充 Intermediate、Plugins、Source 的 includePath，保留编译命令配置。使用微软 C/C++ 默认 IntelliSense；旧文档中的 Engine Fallback 已被当前扩展移除。
-4. 如果 C# 再次扫描整个引擎并报 AndroidPortForwarder / SwarmInterface 加载错误，为新工程重配 C# 默认解决方案与引擎内置 .NET 10 SDK。参考旧目录的 .vscode/ProvingGround.CSharp.slnx、ProvingGround.Rules.csproj 和旧工作区的 dotnet.server.environmentVariables，根据新工程实际规则文件重新核对。
-5. 可为规则补全创建专供编辑器分析的 C# 项目，引用已安装引擎的 UBT 程序集；实际 C++ 编译仍由 UnrealBuildTool 完成。不要把旧工作区直接当成新工程配置。
-6. 关闭 UE，在 VS Code 选择 Launch ProvingGroundEditor (Development)，按 F5 重新做 C++ 构建和编辑器启动验收。
-7. Codex 在 VS Code 插件中运行时避免重载整个窗口。需要刷新 C# 时使用“.NET: 重启语言服务器”。安装、禁用扩展由用户手动操作。
+1. **用户已完成**：自行创建 ProvingGroundGameModeBase，头文件位于 Source/ProvingGround/Public，实现文件位于 Private。本次未增改这 7 个游戏模块与规则源码文件。
+2. **已完成**：源码编辑器仍为 Visual Studio Code；使用 UE 5.8.4 Build.bat 的 -projectfiles -project=E:\ProvingGround\ProvingGround.uproject -game -engine -vscode 参数重新生成工作区，返回 Succeeded，耗时 7.20 秒。
+3. **已完成，后按用户要求切换到 clangd**：保留 UBT 生成的 MSVC 与 includePath 配置；当前语言功能由 clangd 22.1.0 提供，工作区和工程设置均为 clangd.enable=true、C_Cpp.intelliSenseEngine=disabled。微软 C/C++ 扩展继续提供 cppvsdbg 调试，实际构建仍为 MSVC。
+4. **已完成并应用**：新窗口日志复现系统 .NET 9 无法分析 net10.0 的 NETSDK1045。工作区现指向引擎内置 .NET 10 SDK，默认 C# 解决方案设为 .vscode/ProvingGround.CSharp.slnx。用户手动重开工作区后，新日志确认配置生效，规则项目加载成功。需要后续刷新时可使用“.NET: 重启语言服务器”。
+5. **已完成**：专供编辑器分析的 ProvingGround.Rules.csproj 引用已安装引擎的 UBT 程序集，覆盖当前工程及插件的 Build.cs 和 Target.cs；独立编译检查为 0 错误、0 警告。实际 C++ 编译仍由 UnrealBuildTool 完成。没有复制旧工作区替代新工作区。
+6. **F5 验收已通过**：用户选择 Launch ProvingGroundEditor (Development) 并按 F5，终端截图确认执行 ProvingGroundEditor Win64 Development Build，返回 Result: Succeeded，耗时 1.61 秒、0 个增量编译动作；随后用户截图确认 ProvingGround 编辑器已自动打开 Lvl_FirstPerson 场景。此前完整命令行预检的 9 个编译链接步骤耗时 47.82 秒。官方教程的“用 Visual Studio 编译”一节由此 VS Code F5 流程替代。
+7. **已遵守**：没有重载当前 VS Code／Codex 窗口，没有安装或禁用扩展；相关操作由用户手动完成。
+
+验证记录：Saved/EnvironmentSetup/CppWorkspaceGeneration.log、CppRulesAnalysisValidation.log、FirstCppBuildPreflight.log、AfterFirstClassSourceHashes.json。首次预检被正在运行的 Live Coding 拦截，原日志保存在 CppBuildPreflight-LiveCodingBlocked.log；用户关闭 UE 后重新预检。
+
+构建提示：用户生成的 Editor.Target.cs 当前为 Unreal5_6 兼容包含顺序；UBT 建议 Unreal5_8。该提示不表示引擎版本变为 5.6。本次保持用户源码不动，不为消除提示修改规则文件。
 
 ## Git 与 LFS
 
@@ -119,3 +123,28 @@ MSVC 安装目录中的 `14.50.35717` 是工具集目录名；实际编译器已
 
 共 28 类，模式按列出的扩展名匹配。当前 Content 含 454 个 .uasset、2 个 .umap 和 2 个 .ini。二进制资产原始大小 157,155,990 字节；.ini 使用普通 Git 文本。首次提交前已列出候选大小并获用户确认：全部内容约 157.22 MB，469 个文件（含 456 个 LFS 资产，大小包含 LFS 原始资产，不只计算指针文件）。
 
+## 当前扩展弹窗处理状态
+
+工作区设置文件及工程 .vscode/settings.json 均已指定专用 C# 解决方案和引擎内置 .NET 10 环境。磁盘路径与 SDK 已验证。用户重新打开工作区后，2026-10-27 21:39 的新日志确认使用引擎内置 .NET 10，并成功加载 ProvingGround.Rules.csproj；本轮日志未再出现原来的 C# 加载错误。
+
+后续用户已明确要求改用 clangd：当前配置改为 clangd.enable=true，并只关闭微软 IntelliSense。微软 C/C++ 扩展需保持启用，以保留 F5 的 cppvsdbg 调试器；如之前手动禁用了 clangd，用户需手动在当前工作区重新启用。
+
+## clangd 切换记录（2026-10-27）
+
+本次仅切换代码补全、跳转、语义诊断。实际编译仍由 UBT 调用 MSVC 14.50.35739，F5 的 cppvsdbg 启动配置保持原样。没有安装软件、没有代为启用或禁用扩展、没有修改用户游戏源码、蓝图或工程逻辑。
+
+- 现有 clangd 可执行文件版本：22.1.0；VS Code 扩展 llvm-vs-code-extensions.vscode-clangd 0.6.0。
+- 工程 .vscode/settings.json 和 ProvingGround.code-workspace 同时设置 clangd.enable=true、C_Cpp.intelliSenseEngine=disabled，避免不同作用域互相覆盖。
+- clangd.arguments 指向 E:/ProvingGround/.vscode/clangd 编译数据库，header-insertion=never，防止自动补全插入 include 干扰 UE 生成头的包含顺序。
+- 使用 UE 自带 UBT GenerateClangDatabase 模式生成标准 compile_commands.json，显式沿用 VisualStudio2026 工具链；筛选本工程 Source 和 Plugins 源文件，不编译引擎源码。
+- clangd 默认模拟的 MSVC 版本为 19.33，低于 UE 最低要求，最初检查因此报静态断言。刷新脚本读取已安装 cl.exe 的版本，将 /clang:-fms-compatibility-version=19.50 只追加到 JSON 分析命令，不修改 UBT 的真实编译响应文件，也不改变实际编译器。
+- 已添加 VS Code 任务 Refresh clangd compilation database，调用 .vscode/RefreshClangd.ps1。任务已实际验证成功；新增 C++ 类、修改 Build.cs 或刷新 UE 工程文件后，重新运行该任务。先完成一次正常 UE 构建，确保 UHT 生成头存在。
+- 数据库和 clangd 索引是本地生成数据，.vscode/clangd/ 已加入 .gitignore；刷新脚本可纳入版本控制，本次没有代做提交。
+
+验证结果：两个实际 .cpp 文件及引擎 CoreMinimal.h 的完整 clangd --check 均为 0 错误；用户 GameModeBase 头文件的完整解析、AST 构建与语义诊断也为 0 错误。
+
+已知限制：头文件完整 --check 会在遍历代码操作时，对 UE GENERATED_BODY 展开的成员触发 7 条 SpecialMembers / Class body in wrong file 自测失败。它们来自自动生成特殊成员函数的重构动作，不是 C++ 语义诊断。单独以 --check-locations=false 检查解析得到 0 错误；没有在日常运行配置中隐藏诊断或关闭重构功能。该类自动重构动作不应视为已通过验证，使用前需检查预览。原始失败与单独解析日志均保留。
+
+clangd 使用 Clang 解析器，实际编译使用 MSVC，两者诊断可能不同，尤其是 MSVC 扩展、UE 反射宏和未更新的生成头。因此 clangd 无红线不能代替 UBT/UHT/MSVC 构建；遇到疑似误报先刷新编译数据库并检查实际构建结果，不盲目修改游戏代码以迎合分析器。
+
+来源：[clangd 编译参数](https://clangd.llvm.org/design/compile-commands)、[clangd 配置](https://clangd.llvm.org/config)、[clangd 自诊断实现](https://github.com/llvm/llvm-project/blob/main/clang-tools-extra/clangd/tool/Check.cpp)。验证日志均在 Saved/EnvironmentSetup/Clangd 下。
